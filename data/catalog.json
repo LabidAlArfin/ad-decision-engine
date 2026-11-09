@@ -1,0 +1,49 @@
+{
+  "advertisers": [
+    {"id": 1, "name": "Northwind Outfitters", "status": "active"},
+    {"id": 2, "name": "Blue Harbor Travel", "status": "active"},
+    {"id": 3, "name": "Paused Example Co", "status": "paused"}
+  ],
+  "campaigns": [
+    {
+      "id": 101, "advertiserId": 1, "bidType": "CPM", "bidMicros": 4000000,
+      "dailyBudgetMicros": 50000000, "totalBudgetMicros": 500000000,
+      "startTs": 0, "endTs": 4102444800000, "maxPerUserPerDay": 3,
+      "pacing": "ASAP", "status": "active",
+      "targeting": {"geos": [840, 124], "devices": [1, 2]}
+    },
+    {
+      "id": 102, "advertiserId": 1, "bidType": "CPC", "bidMicros": 900000,
+      "dailyBudgetMicros": 30000000, "totalBudgetMicros": 300000000,
+      "startTs": 0, "endTs": 4102444800000, "maxPerUserPerDay": 0,
+      "pacing": "ASAP", "status": "active",
+      "targeting": {"segments": [10, 20], "excludes": [{"dim": "geo", "value": 276}]}
+    },
+    {
+      "id": 201, "advertiserId": 2, "bidType": "CPM", "bidMicros": 2500000,
+      "dailyBudgetMicros": 86400000000, "totalBudgetMicros": 864000000000,
+      "startTs": 0, "endTs": 4102444800000, "maxPerUserPerDay": 5,
+      "pacing": "EVEN", "status": "active",
+      "targeting": {"languages": [1]}
+    },
+    {
+      "id": 301, "advertiserId": 3, "bidType": "CPM", "bidMicros": 99000000,
+      "dailyBudgetMicros": 90000000, "totalBudgetMicros": 900000000,
+      "startTs": 0, "endTs": 4102444800000, "maxPerUserPerDay": 0,
+      "pacing": "ASAP", "status": "active",
+      "targeting": {}
+    }
+  ],
+  "creatives": [
+    {"id": 1001, "campaignId": 101, "size": 300250, "format": "banner",
+     "assetUrl": "https://cdn.example.com/northwind-300x250.png", "clickUrl": "https://northwind.example.com/spring"},
+    {"id": 1002, "campaignId": 101, "size": 72890, "format": "banner",
+     "assetUrl": "https://cdn.example.com/northwind-728x90.png", "clickUrl": "https://northwind.example.com/spring"},
+    {"id": 1003, "campaignId": 102, "size": 300250, "format": "native",
+     "assetUrl": "https://cdn.example.com/northwind-native.json", "clickUrl": "https://northwind.example.com/boots"},
+    {"id": 2001, "campaignId": 201, "size": 300250, "format": "banner",
+     "assetUrl": "https://cdn.example.com/harbor-300x250.png", "clickUrl": "https://blueharbor.example.com/deals"},
+    {"id": 3001, "campaignId": 301, "size": 300250, "format": "banner",
+     "assetUrl": "https://cdn.example.com/paused.png", "clickUrl": "https://paused.example.com/"}
+  ]
+}
