@@ -320,6 +320,18 @@ TEST(snapshot_drops_campaigns_beyond_capacity) {
   EXPECT_EQ(snap->idToIdx.count(3), 0);
 }
 
+TEST(snapshot_keeps_the_first_row_of_a_duplicate_campaign_id) {
+  CampaignSpec a, b;
+  a.id = 1;
+  a.bid = 2'000'000;
+  b.id = 1;
+  b.bid = 3'000'000;
+  CampaignSlots slots(4);
+  const auto snap = buildSnapshot(slots, simpleCatalog({a, b}));
+  ASSERT_EQ(snap->idToIdx.count(1), 1);
+  EXPECT_EQ(snap->campaigns[snap->idToIdx.find(1)->second].bidMicros, 2'000'000);
+}
+
 TEST(snapshot_of_an_empty_catalog_is_safe_to_query) {
   CampaignSlots slots(2);
   const auto snap = buildSnapshot(slots, "{}");
