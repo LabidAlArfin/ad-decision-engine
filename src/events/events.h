@@ -151,13 +151,16 @@ class StatsUpdater {
 class EventHandler {
  public:
   EventHandler(EventQueue& queue, BudgetManager& budget, FrequencyCapStore& freqCap,
-               const UrlSigner& signer, MetricsRegistry& metrics, std::chrono::milliseconds dedupTtl)
+               const UrlSigner& signer, MetricsRegistry& metrics, std::chrono::milliseconds linkTtl,
+               std::chrono::milliseconds holdLifetime)
       : queue_(queue),
         budget_(budget),
         freqCap_(freqCap),
         signer_(signer),
         metrics_(metrics),
-        seenIds_(dedupTtl) {}
+        linkTtlMs_(linkTtl.count()),
+        holdLifetimeMs_(holdLifetime.count()),
+        seenIds_(linkTtl) {}
 
   HttpResponse handleImpression(const HttpRequest& http);
   HttpResponse handleClick(const HttpRequest& http);
@@ -172,6 +175,8 @@ class EventHandler {
   FrequencyCapStore& freqCap_;
   const UrlSigner& signer_;
   MetricsRegistry& metrics_;
+  i64 linkTtlMs_;
+  i64 holdLifetimeMs_;
   DedupCache seenIds_;
 };
 

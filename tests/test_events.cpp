@@ -92,7 +92,7 @@ struct HandlerFixture {
   u32 idx = 0;
 
   explicit HandlerFixture(std::size_t queueCapacity = 64)
-      : queue(queueCapacity), handler(queue, budget, freqCap, signer, metrics, std::chrono::hours(1)) {
+      : queue(queueCapacity), handler(queue, budget, freqCap, signer, metrics, std::chrono::hours(1), std::chrono::minutes(1)) {
     CampaignSpec spec;
     spec.id = kCampaignId;
     snapshot = buildSnapshot(slots, simpleCatalog({spec}));
@@ -105,7 +105,7 @@ struct HandlerFixture {
            std::to_string(price) + "&rsv=" + std::to_string(reserved) + "&exp=" + std::to_string(expiry);
   }
 
-  static i64 future() { return toUnixMs(nowTime()) + 60'000; }
+  static i64 future() { return toUnixMs(nowTime()) + 3'600'000; }
 
   static HttpRequest fromTarget(std::string target, std::string method = "GET") {
     HttpRequest request;
@@ -402,6 +402,17 @@ TEST(handler_impression_commits_spend_and_counts_the_user) {
   EXPECT_EQ(queued[0].slotId, 7);
   EXPECT_EQ(queued[0].device, 2);
   EXPECT_EQ(f.metrics.counterValue("ad_events_total", "type=\"impression\""), 1);
+}
+
+TEST(handler_late_impression_does_not_release_other_holds) {
+  HandlerFixture f;
+  ASSERT_TRUE(f.budget.reserve(f.idx, 500));
+  const i64 exp = toUnixMs(nowTime()) + 60'000;
+  const HttpResponse response =
+      f.handler.handleImpression(HandlerFixture::fromTarget(f.signer.sign("/impression", f.query(1, 500, 500, exp))));
+  EXPECT_EQ(response.status, 204);
+  EXPECT_EQ(f.budget.spentToday(f.idx), 500);
+  EXPECT_EQ(f.budget.reserved(f.idx), 500);
 }
 
 TEST(handler_duplicate_impression_is_not_charged_twice) {
