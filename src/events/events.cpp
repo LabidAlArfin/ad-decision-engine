@@ -268,6 +268,9 @@ HttpResponse EventHandler::handle(const HttpRequest& http, EventType type) {
   event.slotId = *slotId;
   event.device = *device;
   event.ts = now;
+  // A link outlives its budget hold. Once the hold may have expired, releasing
+  // the link's amount would free holds that belong to other live wins.
+  if (toUnixMs(now) - (*expiry - linkTtlMs_) >= holdLifetimeMs_) event.reservedMicros = 0;
 
   budget_.commit(event);
   if (type == EventType::Impression) freqCap_.increment(event.userId, event.campaignId);
