@@ -18,6 +18,10 @@ constexpr int kEventFlushMs = 100;
 constexpr auto kPacingAdjustEvery = std::chrono::seconds(60);
 constexpr auto kMaintenanceTick = std::chrono::milliseconds(200);
 
+std::chrono::seconds reservationExpiryInterval(const AppConfig& config) {
+  return std::chrono::seconds(std::max(config.reservationTtlSec / 2, 1));
+}
+
 }
 
 App::App(AppConfig config)
@@ -38,7 +42,7 @@ App::App(AppConfig config)
       stats_(ctr_),
       // A tracking link must expire before its dedup entry can be forgotten.
       eventHandler_(eventQueue_, budget_, freqCap_, signer_, metrics_,
-                    std::chrono::seconds(config_.urlTtlSec)),
+                    std::chrono::seconds(config_.urlTtlSec), reservationExpiryInterval(config_)),
       server_(config_.port, config_.workerThreads, config_.bindAddress) {
   snapshots_.addListener([this](const CatalogSnapshot& snapshot) {
     budget_.applyCatalog(snapshot);
@@ -144,7 +148,7 @@ void App::maintenanceLoop() {
   auto lastPacing = Clock::now();
   i64 lastDay = utcDay(nowTime());
   const auto syncEvery = std::chrono::seconds(config_.budgetSyncSec);
-  const auto expireEvery = std::chrono::seconds(std::max(config_.reservationTtlSec / 2, 1));
+  const auto expireEvery = reservationExpiryInterval(config_);
 
   std::unique_lock lock(stopMutex_);
   while (!stopCv_.wait_for(lock, kMaintenanceTick, [this] { return stopping_; })) {
