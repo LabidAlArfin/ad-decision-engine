@@ -299,6 +299,10 @@ CatalogSnapshot CampaignLoader::buildSnapshot() {
 
   CatalogSnapshot snap;
   for (Campaign& c : campaigns) {
+    if (snap.idToIdx.find(c.id) != snap.idToIdx.end()) {
+      std::cerr << "catalog: duplicate campaign id " << c.id << ", keeping the first row\n";
+      continue;
+    }
     const std::optional<u32> slot = slots_.assign(c.id);
     if (!slot) {
       std::cerr << "catalog: campaign capacity reached, dropping campaign " << c.id << "\n";
